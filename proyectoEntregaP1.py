@@ -1,5 +1,8 @@
 # Proyecto de Entrega Parcial 1 - BioInspirados
-
+# Integrantes:
+# Luis Pablo López Iracheta 
+# Diego Mares Rodríguez
+# Francisco Marín Castillo
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,7 +56,7 @@ def fitnessPares(poblacion, L, Imin, Imax):
     y = D[:, 1]
     fitness = []
     
-    for x, y in D:  # Python automáticamente desempaqueta cada fila
+    for x, y in D: 
         fitness.append(ackley(x, y))
     
     return np.array(fitness)
@@ -163,7 +166,7 @@ y = np.linspace(-5, 5, 400)
 X, Y = np.meshgrid(x, y)
 Z = ackley(X, Y)
 
-# Graficar en 3D
+# Graficamos resultados
 fig = plt.figure(figsize=(10, 6))
 ax = fig.add_subplot(111, projection='3d')
 ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none')
