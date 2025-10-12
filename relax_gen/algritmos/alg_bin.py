@@ -33,8 +33,9 @@ class cl_alg_stn_bin_rank():
 
         best_population_decimal = self.decode_binary_population(self.bin_population, self.i_min, self.i_max)
         best_individual = best_population_decimal[0]
-
-        return self.bin_population[0,:], best_individual
+        print(f"[INFO] Best solution found: {best_individual} with fitness: {self.fitness_binary_population(self.bin_population, self.i_min, self.i_max).max()}")
+        print(f"[INFO] Ending algoritm stand binary for rank\n")
+        return best_individual
 
 
     def create_binary_population(self, n, l):
@@ -60,7 +61,7 @@ class cl_alg_stn_bin_rank():
         return rescaled_decimal
 
     def fitness_binary_population(self, population, Imin, Imax):
-        [r, c] = population.shape
+        # [r, c] = population.shape
         x = self.decode_binary_population(population, Imin, Imax)
         fitness = self.funtion(x)
         return fitness
