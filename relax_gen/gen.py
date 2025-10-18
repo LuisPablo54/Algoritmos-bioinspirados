@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 
 # Import the algorithms to be used
-from algritmos.alg_bin import cl_alg_stn_bin_rank
-from algritmos.alg_quantum import cl_alg_quantum
+from algorithms.alg_bin import cl_alg_stn_bin_rank
+from algorithms.alg_quantum import cl_alg_quantum
 
 
 class GEN():

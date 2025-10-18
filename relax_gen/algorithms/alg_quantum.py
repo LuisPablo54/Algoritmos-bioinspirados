@@ -1,3 +1,6 @@
+# Author: Luis Iracheta
+# Artificial intelligence engineering
+# Universidad Iberoamericana León
 import numpy as np
 import pandas as pd
 

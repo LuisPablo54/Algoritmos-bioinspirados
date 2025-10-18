@@ -28,7 +28,7 @@ def seleccion(Poblacion, fitness, ps):
     poblacionElite = Poblacion[idx[:num_elite]] 
     fitnessElite = fitness[idx[:num_elite]]
     
-    return poblacionElite, fitnessElite # Devuelve también los fitness de la elite
+    return poblacionElite, fitnessElite # Devuelve también los fitness de la elites
 
 def BUMDA_media_stds(pobla_elite, g, Imin, Imax, sigma_floor=0.01, beta=1.0, eps=1e-8):
     # pobla_elite: matriz de individuos elite

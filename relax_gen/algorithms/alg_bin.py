@@ -1,14 +1,15 @@
-
-
+# Author: Luis Iracheta
+# Artificial intelligence engineering
+# Universidad Iberoamericana León
 import numpy as np
-import pandas as pd
+
 
 
 #*****************************Class of algoritm stand binary for rank***********************************
-class cl_alg_stn_bin_rank():
+class cl_alg_stn_bin():
     def __init__(self, funtion, population, cant_genes, cant_ciclos, 
                  selection_percent, crossing, mutation_percent, i_min,
-                    i_max, optimum):
+                    i_max, optimum, select_mode='ranking'):
         self.funtion = funtion
         self.population = population
         self.cant_genes = cant_genes
@@ -19,15 +20,20 @@ class cl_alg_stn_bin_rank():
         self.i_min = i_min
         self.i_max = i_max
         self.optimum = optimum
+        self.select_mode = select_mode
 
     def run(self):
         print(f"\n[INFO] Starting algorithm: Standard Binary for Rank")
         self.bin_population = self.create_binary_population(self.population, self.cant_genes)
+        if self.select_mode != 'ranking':
+            raise ValueError("The select_mode parameter must be 'ranking'")
+        
+         # Main loop of the algorithm
         for i in range(self.cant_ciclos):
             self.Crossing_bin = self.crossing_binary_population(self.bin_population, self.crossing)
             self.Mutations_bin = self.mutations_binary_population(self.Crossing_bin, self.mutation_percent)
 
-            self.select_bin = self.seleccionRanking(self.Mutations_bin, self.selection_percent, self.i_min, self.i_max, self.optimum)
+            self.select_bin = self.seleccion_Ranking(self.Mutations_bin, self.selection_percent, self.i_min, self.i_max, self.optimum)
 
             self.bin_population = self.select_bin.copy()
 
@@ -111,7 +117,10 @@ class cl_alg_stn_bin_rank():
 
         return population
     
-    def seleccionRanking(self, poblacion, select_percent, Imin, Imax, optimum='max'):
+
+#*****************************Selection by ranking***********************************
+
+    def seleccion_Ranking(self, poblacion, select_percent, Imin, Imax, optimum='max'):
         [r, c] = poblacion.shape
         pnew = np.zeros((r, c))  # Matrix to save the new population
         n = int(select_percent * r)  # Number of individuals to select
@@ -146,3 +155,44 @@ class cl_alg_stn_bin_rank():
                     pnew[i, j] = np.random.randint(0,2)
                     # Cuando se acaba, rellenamos con numeros aleatorios
         return pnew
+#****************************Selection by Roulette********************************
+
+    def selection_Roulette(self, population, Imin, Imax, optimum='max'):
+            [r, c] = population.shape 
+            aptitud = self.fitness_binary_population(population, Imin, Imax)
+            minFitness = np.min(aptitud)
+    # --- Ajuste según el tipo de problema ---
+            if optimum == 'min':
+                aptitud = np.max(aptitud) - aptitud + 1e-6  # invertir valores
+            elif optimum == 'max':
+                minFitness = np.min(aptitud)
+                if minFitness < 0:
+                    aptitud = aptitud - minFitness + 1e-6
+            
+            # Se evita dividir por 0 en lo siguiente
+            if np.sum(aptitud) == 0:
+                probabilidad = np.ones(r)/r
+            else:
+                probabilidad = aptitud / np.sum(aptitud)
+
+            # Se optienen las probabilidades acumuladas
+            acumuladas = np.cumsum(probabilidad)
+
+            #Generamos un numero aleatorio para la simulación de la ruleta
+            num = np.random.rand()
+
+            # Se busca el individuo donde cae num
+            for i in range(r):
+                if (num < acumuladas[i]):
+                    ganador = population[i,:]
+                    break
+            return ganador
+    
+    def nuevaPoblacionRuleta(poblacion, Imin, Imax):
+        [r,c] = poblacion.shape
+        pNew = np.zeros((r,c))
+
+        # Se repite el torneo
+        for i in range (r):
+            pNew[i,:] = seleccionPorRuleta(poblacion, Imin, Imax)
+        return pNew
