@@ -7,13 +7,13 @@ import numpy as np
 
 #*****************************Class of algoritm stand binary for rank***********************************
 class cl_alg_stn_bin():
-    def __init__(self, funtion, population, cant_genes, cant_ciclos, 
+    def __init__(self, funtion, population, cant_genes, num_ciclos, 
                  selection_percent, crossing, mutation_percent, i_min,
-                    i_max, optimum, select_mode='ranking'):
+                    i_max, optimum, select_mode):
         self.funtion = funtion
         self.population = population
         self.cant_genes = cant_genes
-        self.cant_ciclos = cant_ciclos
+        self.num_ciclos = num_ciclos
         self.selection_percent = selection_percent
         self.crossing = crossing
         self.mutation_percent = mutation_percent
@@ -22,27 +22,43 @@ class cl_alg_stn_bin():
         self.optimum = optimum
         self.select_mode = select_mode
 
+#*****************************Run method***********************************
     def run(self):
-        print(f"\n[INFO] Starting algorithm: Standard Binary for Rank")
+        print(f"\n[INFO] Starting algorithm: Standard Binary for {self.select_mode}\n")
+        print(f"\n Mutation percent: {self.mutation_percent}\n")
+         # Create initial binary population
         self.bin_population = self.create_binary_population(self.population, self.cant_genes)
-        if self.select_mode != 'ranking':
-            raise ValueError("The select_mode parameter must be 'ranking'")
+        if self.select_mode == 'ranking':
+            select_function = self.selection_Ranking
+        elif self.select_mode == 'roulette':
+            select_function = self.new_population_roulette
+      
         
          # Main loop of the algorithm
-        for i in range(self.cant_ciclos):
+        for i in range(self.num_ciclos):
             self.Crossing_bin = self.crossing_binary_population(self.bin_population, self.crossing)
             self.Mutations_bin = self.mutations_binary_population(self.Crossing_bin, self.mutation_percent)
 
-            self.select_bin = self.seleccion_Ranking(self.Mutations_bin, self.selection_percent, self.i_min, self.i_max, self.optimum)
+            self.select_bin = select_function(self.Mutations_bin, self.selection_percent, self.i_min, self.i_max, self.optimum)
 
             self.bin_population = self.select_bin.copy()
 
+     
+         # Decode the best individual
         best_population_decimal = self.decode_binary_population(self.bin_population, self.i_min, self.i_max)
         best_individual = best_population_decimal[0]
-        print(f"[INFO] Best solution found: {best_individual} with fitness: {self.fitness_binary_population(self.bin_population, self.i_min, self.i_max).max()}")
-        print(f"[INFO] Ending algoritm stand binary for rank\n")
-        return best_individual
 
+        # Print the best solution found depending on the optimization type
+        if self.optimum == 'max':
+            print(f"[INFO] Best solution found: {best_individual} with fitness: {self.fitness_binary_population(self.bin_population, self.i_min, self.i_max).max()}")
+        else:
+            print(f"[INFO] Best solution found: {best_individual} with fitness: {self.fitness_binary_population(self.bin_population, self.i_min, self.i_max).min()}")
+        
+        print(f"\n[INFO] Ending algoritm stand binary for {self.select_mode}\n")
+        
+        # return the best individual
+        return best_individual
+# *****************************Methods of the algorithm***********************************
 
     def create_binary_population(self, n, l):
         # n: número de individuos
@@ -120,7 +136,7 @@ class cl_alg_stn_bin():
 
 #*****************************Selection by ranking***********************************
 
-    def seleccion_Ranking(self, poblacion, select_percent, Imin, Imax, optimum='max'):
+    def selection_Ranking(self, poblacion, select_percent, Imin, Imax, optimum='max'):
         [r, c] = poblacion.shape
         pnew = np.zeros((r, c))  # Matrix to save the new population
         n = int(select_percent * r)  # Number of individuals to select
@@ -187,12 +203,12 @@ class cl_alg_stn_bin():
                     ganador = population[i,:]
                     break
             return ganador
-    
-    def nuevaPoblacionRuleta(poblacion, Imin, Imax):
+
+    def new_population_roulette(self, poblacion, selection_percent, Imin, Imax, optimum,):
         [r,c] = poblacion.shape
         pNew = np.zeros((r,c))
 
         # Se repite el torneo
         for i in range (r):
-            pNew[i,:] = seleccionPorRuleta(poblacion, Imin, Imax)
+            pNew[i,:] = self.selection_Roulette(poblacion, Imin, Imax, optimum)
         return pNew
